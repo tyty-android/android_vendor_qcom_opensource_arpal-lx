@@ -1,5 +1,12 @@
 LOCAL_PATH := $(call my-dir)
+
+ifneq ($(QCPATH),)
+
 include $(CLEAR_VARS)
+
+ifeq ($(SOONG_CONFIG_android_hardware_audio_run_64bit), true)
+LOCAL_MULTILIB := 64
+endif
 
 LOCAL_MODULE := vendor.qti.hardware.pal@1.0-impl
 LOCAL_MODULE_OWNER := qti
@@ -9,7 +16,7 @@ LOCAL_SRC_FILES := \
     src/pal_server_wrapper.cpp
 
 LOCAL_C_INCLUDES := \
-    $(TOP)/vendor/qcom/opensource/pal/utils/inc
+    $(call project-path-for,qcom-audio)/pal/utils/inc
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/inc
 
@@ -32,3 +39,14 @@ LOCAL_HEADER_LIBRARIES := \
 
 include $(BUILD_SHARED_LIBRARY)
 
+else
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libpalserver_headers
+LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/inc
+LOCAL_VENDOR_MODULE := true
+
+include $(BUILD_HEADER_LIBRARY)
+
+endif
