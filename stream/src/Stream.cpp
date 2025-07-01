@@ -1064,7 +1064,9 @@ int32_t Stream::handleBTDeviceNotReady(bool& a2dpSuspend)
             }
 
             mDevices.push_back(dev);
+            rm->lockGraph();
             status = session->setupSessionDevice(this, mStreamAttr->type, dev);
+            rm->unlockGraph();
             if (0 != status) {
                 PAL_ERR(LOG_TAG, "setupSessionDevice failed:%d", status);
                 dev->close();
@@ -1260,10 +1262,12 @@ int32_t Stream::connectStreamDevice_l(Stream* streamHandle, struct pal_device *d
     }
 
     mDevices.push_back(dev);
+    rm->lockGraph();
     status = session->setupSessionDevice(streamHandle, mStreamAttr->type, dev);
     if (0 != status) {
         PAL_ERR(LOG_TAG, "setupSessionDevice for %d failed with status %d",
                 dev->getSndDeviceId(), status);
+        rm->unlockGraph();
         goto dev_close;
     }
 
@@ -1273,7 +1277,6 @@ int32_t Stream::connectStreamDevice_l(Stream* streamHandle, struct pal_device *d
      * started again as a part of pal_stream_start().
      */
 
-    rm->lockGraph();
     if ((currentState != STREAM_INIT && currentState != STREAM_STOPPED) ||
         ((currentState == STREAM_INIT || currentState == STREAM_STOPPED) &&
         ((dev->getSndDeviceId() == PAL_DEVICE_OUT_BLUETOOTH_A2DP) ||
