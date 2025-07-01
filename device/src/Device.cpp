@@ -435,6 +435,13 @@ void Device::getCurrentSndDevName(char *name){
     strlcpy(name, mSndDeviceName, DEVICE_NAME_MAX_SIZE);
 }
 
+int Device::getDeviceCount(){
+    mDeviceMutex.lock();
+    int devCount = deviceCount;
+    mDeviceMutex.unlock();
+    return devCount;
+}
+
 std::string Device::getPALDeviceName()
 {
     PAL_VERBOSE(LOG_TAG, "Device name %s acquired", mPALDeviceName.c_str());
